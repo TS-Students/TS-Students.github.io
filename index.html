@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>科研电子木鱼 - 积攒学术功德</title>
+    <title>赛博科研木鱼 - Cyber Muyu</title>
+    <!-- 引入科技感字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --text-color: #e0e0e0;
-            --accent-color: #4CAF50; /* 学术绿 */
-            --wood-color: #e0e0e0;
+            --bg-color: #0a0a0f;
+            --text-color: #00f3ff;
+            --accent-color: #00f3ff;
+            --secondary-color: #bc13fe;
+            --glass-bg: rgba(20, 20, 30, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -17,7 +25,7 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Share Tech Mono', monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,130 +34,319 @@
             overflow: hidden;
             user-select: none;
             -webkit-user-select: none;
+            /* 动态背景渐变 */
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+        }
+
+        /* 背景动画 Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.3;
+            pointer-events: none;
         }
 
         .container {
             text-align: center;
             position: relative;
             z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
         }
 
         h1 {
-            font-weight: 300;
-            margin-bottom: 10px;
-            opacity: 0.8;
-            font-size: 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+            background: linear-gradient(90deg, var(--text-color), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .counter-container {
-            margin-bottom: 40px;
-        }
-
-        .counter-label {
-            font-size: 14px;
-            opacity: 0.6;
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-bottom: 30px;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
 
+        .counter-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            padding: 15px 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05);
+            min-width: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .counter-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            animation: scanline 2s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .counter-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
         #counter {
-            font-size: 48px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 56px;
             font-weight: bold;
-            font-variant-numeric: tabular-nums;
-            margin-top: 5px;
+            color: #fff;
+            text-shadow: 0 0 15px var(--accent-color);
+            line-height: 1;
         }
 
         .muyu-container {
             cursor: pointer;
-            transition: transform 0.1s;
             position: relative;
-            width: 260px;
-            height: 220px;
+            width: 280px;
+            height: 240px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* 3D透视 */
+            perspective: 1000px;
         }
 
-        .muyu-container:active, .muyu-container.active {
+        .muyu-container:active {
             transform: scale(0.95);
         }
 
         .muyu-svg {
             width: 100%;
             height: 100%;
-            fill: var(--wood-color);
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+            fill: rgba(255,255,255,0.05);
+            stroke: var(--accent-color);
+            stroke-width: 15;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 15px var(--accent-color));
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        /* 内部发光核心 */
+        .muyu-core {
+            position: absolute;
+            width: 100px;
+            height: 80px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.2;
+            z-index: 1;
+            transition: opacity 0.1s;
         }
 
-        /* 浮动文字动画 */
+        .muyu-container:active .muyu-core {
+            opacity: 0.6;
+        }
+
+        /* 波纹效果 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+            opacity: 0;
+            pointer-events: none;
+            animation: rippleAnim 0.8s ease-out forwards;
+            z-index: 0;
+        }
+
+        @keyframes rippleAnim {
+            0% {
+                width: 100px;
+                height: 100px;
+                opacity: 0.8;
+                border-width: 5px;
+            }
+            100% {
+                width: 400px;
+                height: 400px;
+                opacity: 0;
+                border-width: 0px;
+            }
+        }
+
+        /* 浮动文字 */
         .floating-text {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            color: var(--text-color);
+            color: #fff;
+            font-family: 'Orbitron', 'Microsoft YaHei', sans-serif;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 24px;
             pointer-events: none;
             white-space: nowrap;
-            animation: floatUp 1s ease-out forwards;
+            animation: floatUpCyber 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
             opacity: 0;
+            text-shadow: 0 0 5px var(--accent-color);
+            z-index: 100;
         }
 
-        @keyframes floatUp {
+        @keyframes floatUpCyber {
             0% {
-                top: 20%;
+                top: 40%;
+                opacity: 0;
+                transform: translateX(-50%) scale(0.5);
+            }
+            20% {
                 opacity: 1;
-                transform: translateX(-50%) scale(1);
+                transform: translateX(-50%) scale(1.2);
             }
             100% {
-                top: -30%;
+                top: -20%;
                 opacity: 0;
-                transform: translateX(-50%) scale(1.2);
+                transform: translateX(-50%) scale(1);
             }
         }
 
         /* 底部控制栏 */
         .controls {
             position: fixed;
-            bottom: 30px;
+            bottom: 40px;
             display: flex;
             gap: 15px;
             z-index: 20;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .mode-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: var(--text-color);
-            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            padding: 10px 20px;
             border-radius: 20px;
             cursor: pointer;
+            font-family: 'Share Tech Mono', 'Microsoft YaHei', monospace;
             font-size: 14px;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         .mode-btn.active {
+            color: #000;
             background: var(--accent-color);
-            border-color: var(--accent-color);
-            color: #fff;
             font-weight: bold;
+            box-shadow: 0 0 15px var(--accent-color);
         }
 
-        .mode-btn:hover {
-            background: rgba(255,255,255,0.2);
+        .mode-btn:hover:not(.active) {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
         }
         
-        .mode-btn.active:hover {
-            background: var(--accent-color);
-            opacity: 0.9;
+        .top-bar {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            z-index: 50;
         }
 
-        .tips {
-            position: fixed;
-            bottom: 10px;
+        .auto-switch, .lang-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 12px;
-            opacity: 0.3;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        /* 切换开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.1);
+            transition: .4s;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* 语言切换按钮 */
+        .lang-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7);
+            padding: 4px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.3s;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
         }
 
         /* 移动端适配 */
@@ -162,176 +359,303 @@
                 font-size: 40px;
             }
             .controls {
-                bottom: 40px;
+                bottom: 30px;
+                width: 90%;
+                justify-content: space-around;
+            }
+            .mode-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .top-bar {
+                top: 15px;
+                right: 15px;
             }
         }
     </style>
 </head>
 <body>
 
+    <canvas id="bg-canvas" style="left: 3px; top: 3px;"></canvas>
+
+    <div class="top-bar">
+        <div class="lang-switch">
+            <button class="lang-btn" onclick="toggleLang()" id="lang-btn">EN / CN</button>
+        </div>
+        <div class="auto-switch">
+            <span id="label-auto">AUTO_MODE</span>
+            <label class="switch">
+                <input type="checkbox" id="auto-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>科研电子木鱼</h1>
-        <div class="counter-container">
-            <div class="counter-label" id="wish-label">当前愿望：学术顺利</div>
-            <div id="counter">0</div>
+        <h1 id="title-main">CYBER MUYU</h1>
+        <div class="subtitle" id="title-sub">ELECTRONIC MERIT ACCUMULATION SYSTEM</div>
+        
+        <div class="counter-panel">
+            <div class="counter-label" id="wish-label">TARGET: ACADEMIC SUCCESS</div>
+            <div id="counter">000000</div>
         </div>
 
         <div class="muyu-container" id="muyu">
-            <!-- 原始 SVG 路径优化版 -->
+            <div class="muyu-core"></div>
+            <!-- 赛博风格化 SVG -->
             <svg class="muyu-svg" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <!-- 外轮廓 -->
                 <path d="M512.6 198.8c-126.8 28.5-257 266-268.4 282-48.4 67.8-87 153.6-107.2 191.4-42.6 79.8-98.4 129-106 162.8-7.6 33.6 26.8 61.2 44.4 69.6 17.6 8.4 47.2 0 58.8 0 87 8.4 273.6 98 506.4 98 0 0 376.6 5.6 405.4-269 6.8-71.4 3.6-207.2-53-213.6-47.8-6.4-76.2 3-136.8 15.4-40.2 8.2-141 22.4-159 33.6-194.8 88.6-301 152.6-330 162-22 0-41-5.4-46.4-52.2 0-19.2 73.2-65 104.6-72.4 179-42.4 263.8-55.4 273.8-55.4 14.4 0 329.6-75.8 339.2-83 9.6-7.2 19.8-14.2 19.8-39.2 0-11.4-25.2-37-54-68.2-34-37-74.6-80-105-90.2-192-127.6-301.6-151.4-397.4-140.4z" />
-                <path d="M512 360c0 0-40 40-40 100s40 100 40 100" style="fill:none;stroke:var(--bg-color);stroke-width:10;opacity:0.3;"/>
+                <!-- 科技线条装饰 -->
+                <circle cx="512" cy="512" r="100" style="fill:none;stroke-width:5;opacity:0.5" />
+                <path d="M300 512 L724 512 M512 300 L512 724" style="fill:none;stroke-width:2;opacity:0.3; stroke-dasharray: 10,10" />
+                <circle cx="512" cy="512" r="20" style="fill:currentColor;" />
             </svg>
         </div>
     </div>
 
     <div class="controls">
-        <button class="mode-btn active" onclick="setMode('research')">🎓 科研学术</button>
-        <button class="mode-btn" onclick="setMode('health')">💪 身体健康</button>
-        <button class="mode-btn" onclick="setMode('life')">🍀 诸事顺遂</button>
+        <button class="mode-btn active" id="btn-research" onclick="setMode('research')">RESEARCH</button>
+        <button class="mode-btn" id="btn-health" onclick="setMode('health')">HEALTH</button>
+        <button class="mode-btn" id="btn-life" onclick="setMode('life')">FORTUNE</button>
     </div>
 
-    <div class="tips">点击屏幕 或 按下空格键 积攒功德</div>
-
     <script>
-        // 状态
+        // --- 核心逻辑 ---
         let count = 0;
         let currentMode = 'research';
+        let currentLang = 'en'; // 默认英语
+        let autoInterval = null;
         
-        // 词库配置
+        // 国际化配置
+        const i18n = {
+            en: {
+                title: "CYBER MUYU",
+                subtitle: "ELECTRONIC MERIT ACCUMULATION SYSTEM",
+                auto: "AUTO_MODE",
+                target_research: "TARGET: ACADEMIC SUCCESS",
+                target_health: "TARGET: PHYSICAL HEALTH",
+                target_fortune: "TARGET: FORTUNE & LUCK",
+                btn_research: "RESEARCH",
+                btn_health: "HEALTH",
+                btn_fortune: "FORTUNE",
+                lang_btn: "ZH / EN"
+            },
+            zh: {
+                title: "赛博木鱼",
+                subtitle: "电子功德积攒系统",
+                auto: "自动积攒",
+                target_research: "当前愿望：学术顺利",
+                target_health: "当前愿望：身体健康",
+                target_fortune: "当前愿望：诸事顺遂",
+                btn_research: "科研学术",
+                btn_health: "身体健康",
+                btn_fortune: "转运祈福",
+                lang_btn: "中 / 英"
+            }
+        };
+
+        // 词库配置 (支持多语言)
         const texts = {
-            research: [
-                "Paper +1", "SCI +1", "IF +10", "Bug -1", "Error -1", 
-                "Accept", "Offer +1", "灵感 +1", "发量 +1", "Funding +1",
-                "实验成功", "数据完美", "顺利毕业", "一审过", "顶刊 +1"
-            ],
-            health: [
-                "腰椎 +1", "视力 +1", "发量 +1", "睡眠 +1", "颈椎 +1",
-                "体能 +1", "免疫力 +1", "焦虑 -1", "肝功能 +1", "心率正常"
-            ],
-            life: [
-                "功德 +1", "财运 +1", "水逆退散", "好运 +1", "烦恼 -1",
-                "快乐 +1", "桃花 +1", "平安 +1", "万事胜意", "心想事成"
-            ]
+            research: {
+                en: ["PAPER++", "SCI++", "IF UP", "NO BUG", "0 ERROR", "ACCEPT", "OFFER++", "IDEA++", "HAIR++", "FUNDING", "SUCCESS", "DATA OK", "GRADUATE", "PASSED", "TOP JRNL"],
+                zh: ["论文+1", "SCI+1", "影响因子++", "无Bug", "0报错", "Accept", "Offer+1", "灵感+1", "发量+1", "Funding", "实验成功", "数据完美", "顺利毕业", "一审过", "顶刊+1"]
+            },
+            health: {
+                en: ["HP++", "VISION++", "HAIR++", "SLEEP++", "NECK++", "ENERGY++", "IMMUNITY", "ANXIETY--", "LIVER++", "HEART OK"],
+                zh: ["HP+1", "视力+1", "发量+1", "睡眠+1", "颈椎+1", "体能+1", "免疫力++", "焦虑-1", "肝功能+1", "心率正常"]
+            },
+            life: {
+                en: ["LUCK++", "MONEY++", "JOY++", "PEACE", "WORRY--", "LOVE++", "SAFE", "WIN", "DREAM", "RICH"],
+                zh: ["功德+1", "财运+1", "好运+1", "平安", "烦恼-1", "快乐+1", "桃花+1", "万事胜意", "心想事成", "暴富"]
+            }
         };
 
         const dom = {
             counter: document.getElementById('counter'),
             muyu: document.getElementById('muyu'),
             wishLabel: document.getElementById('wish-label'),
-            btns: document.querySelectorAll('.mode-btn')
+            btns: document.querySelectorAll('.mode-btn'),
+            autoToggle: document.getElementById('auto-toggle'),
+            root: document.documentElement,
+            // I18N DOM Elements
+            titleMain: document.getElementById('title-main'),
+            titleSub: document.getElementById('title-sub'),
+            labelAuto: document.getElementById('label-auto'),
+            btnResearch: document.getElementById('btn-research'),
+            btnHealth: document.getElementById('btn-health'),
+            btnLife: document.getElementById('btn-life'),
+            langBtn: document.getElementById('lang-btn')
         };
 
-        // 音频上下文
+        // --- 语言切换系统 ---
+        function updateLanguage() {
+            const t = i18n[currentLang];
+            
+            // 更新静态文本
+            dom.titleMain.innerText = t.title;
+            dom.titleSub.innerText = t.subtitle;
+            dom.labelAuto.innerText = t.auto;
+            dom.btnResearch.innerText = t.btn_research;
+            dom.btnHealth.innerText = t.btn_health;
+            dom.btnLife.innerText = t.btn_fortune;
+            dom.langBtn.innerText = currentLang === 'en' ? "CN" : "EN"; // 显示“切换到”的目标语言，或者简单显示当前状态
+            dom.langBtn.innerText = currentLang === 'en' ? "中文" : "ENGLISH";
+
+            // 更新当前状态的标签
+            updateWishLabel();
+        }
+
+        function updateWishLabel() {
+            const t = i18n[currentLang];
+            let label = "";
+            if (currentMode === 'research') label = t.target_research;
+            else if (currentMode === 'health') label = t.target_health;
+            else label = t.target_fortune;
+            dom.wishLabel.innerText = label;
+        }
+
+        window.toggleLang = function() {
+            currentLang = currentLang === 'en' ? 'zh' : 'en';
+            updateLanguage();
+            // 保存语言偏好
+            localStorage.setItem('muyu_lang', currentLang);
+        }
+
+        // --- 音频系统 ---
         let audioCtx;
         
-        // 初始化音频上下文（需要用户交互后才能启动）
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
-        }
-
-        // 合成木鱼声音
-        function playWoodenFishSound() {
-            initAudio();
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
+        }
 
+        function playSound() {
+            initAudio();
             const t = audioCtx.currentTime;
             
-            // 创建振荡器
             const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
+            const gain = audioCtx.createGain();
             
-            // 模拟木鱼的短促声音
-            // 频率从高到低快速扫过，模拟敲击
             osc.frequency.setValueAtTime(800, t);
-            osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+            osc.frequency.exponentialRampToValueAtTime(150, t + 0.08);
             
-            // 音量包络：快速攻击，中等衰减
-            gainNode.gain.setValueAtTime(0, t);
-            gainNode.gain.linearRampToValueAtTime(1, t + 0.01);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(1, t + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
 
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            osc.type = 'sine';
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
             osc.start(t);
             osc.stop(t + 0.3);
-        }
 
-        // 切换模式
-        window.setMode = function(mode) {
-            currentMode = mode;
-            // 更新按钮状态
-            dom.btns.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(2000, t);
+            osc2.frequency.exponentialRampToValueAtTime(500, t + 0.05);
+            gain2.gain.setValueAtTime(0, t);
+            gain2.gain.linearRampToValueAtTime(0.1, t + 0.01); 
+            gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
             
-            // 更新标签颜色和文字
-            const root = document.documentElement;
-            if (mode === 'research') {
-                root.style.setProperty('--accent-color', '#4CAF50'); // 绿色
-                dom.wishLabel.textContent = "当前愿望：学术顺利";
-            } else if (mode === 'health') {
-                root.style.setProperty('--accent-color', '#2196F3'); // 蓝色
-                dom.wishLabel.textContent = "当前愿望：身体健康";
-            } else {
-                root.style.setProperty('--accent-color', '#FF9800'); // 橙色
-                dom.wishLabel.textContent = "当前愿望：诸事顺遂";
-            }
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start(t);
+            osc2.stop(t + 0.1);
         }
 
-        // 敲击逻辑
-        function knock() {
-            // 1. 增加计数
-            count++;
-            dom.counter.innerText = count;
-
-            // 2. 播放声音
-            playWoodenFishSound();
-
-            // 3. 木鱼动画
-            dom.muyu.classList.remove('active');
-            void dom.muyu.offsetWidth; // 触发重绘
-            dom.muyu.classList.add('active');
-            setTimeout(() => dom.muyu.classList.remove('active'), 100);
-
-            // 4. 显示浮动文字
-            showFloatingText();
+        // --- 视觉效果 ---
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            
+            if (x && y) {
+                const rect = dom.muyu.getBoundingClientRect();
+                ripple.style.left = (x - rect.left - 50) + 'px'; 
+                ripple.style.top = (y - rect.top - 50) + 'px';
+            } else {
+                ripple.style.left = 'calc(50% - 50px)';
+                ripple.style.top = 'calc(50% - 50px)';
+            }
+            
+            dom.muyu.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 1000);
         }
 
         function showFloatingText() {
-            const textPool = texts[currentMode];
+            const textPool = texts[currentMode][currentLang];
             const randomText = textPool[Math.floor(Math.random() * textPool.length)];
             
             const el = document.createElement('div');
             el.className = 'floating-text';
             el.innerText = randomText;
             
-            // 随机微调位置，显得自然
-            const randomX = (Math.random() - 0.5) * 40;
+            const randomX = (Math.random() - 0.5) * 60;
             el.style.transform = `translateX(calc(-50% + ${randomX}px))`;
 
             dom.muyu.appendChild(el);
 
-            // 动画结束后移除元素
-            setTimeout(() => {
-                el.remove();
-            }, 1000);
+            setTimeout(() => el.remove(), 1000);
         }
 
-        // 绑定事件
-        dom.muyu.addEventListener('mousedown', (e) => {
-            e.preventDefault(); // 防止连续点击选中文本
-            knock();
-        });
-        
+        // --- 模式切换 ---
+        window.setMode = function(mode) {
+            currentMode = mode;
+            dom.btns.forEach(btn => btn.classList.remove('active'));
+            const btnId = 'btn-' + (mode === 'life' ? 'life' : mode); // 注意ID对应
+            // 简单处理：life模式对应的ID是btn-life
+            
+            if(mode === 'research') dom.btnResearch.classList.add('active');
+            if(mode === 'health') dom.btnHealth.classList.add('active');
+            if(mode === 'life') dom.btnLife.classList.add('active');
+            
+            let color;
+            if (mode === 'research') {
+                color = '#00f3ff'; 
+            } else if (mode === 'health') {
+                color = '#00ff9d'; 
+            } else {
+                color = '#ff0055'; 
+            }
+            
+            dom.root.style.setProperty('--accent-color', color);
+            dom.root.style.setProperty('--text-color', color);
+            
+            updateWishLabel();
+        }
+
+        // --- 交互逻辑 ---
+        function updateDisplay() {
+            dom.counter.innerText = count.toString().padStart(6, '0');
+            localStorage.setItem('muyu_count', count);
+        }
+
+        function knock(e) {
+            count++;
+            updateDisplay();
+            playSound();
+            showFloatingText();
+            
+            dom.muyu.style.transform = 'scale(0.95)';
+            setTimeout(() => dom.muyu.style.transform = 'scale(1)', 50);
+
+            let x, y;
+            if (e && e.clientX) {
+                x = e.clientX;
+                y = e.clientY;
+            }
+            createRipple(x, y);
+        }
+
+        dom.muyu.addEventListener('mousedown', knock);
         dom.muyu.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // 防止移动端延迟
-            knock();
+            e.preventDefault();
+            knock(e.touches[0]);
         }, { passive: false });
 
         document.addEventListener('keydown', (e) => {
@@ -340,17 +664,100 @@
             }
         });
 
-        // 恢复之前的计数（可选，本地存储）
+        dom.autoToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                if (!autoInterval) {
+                    knock();
+                    autoInterval = setInterval(() => {
+                        knock();
+                    }, 800);
+                }
+            } else {
+                if (autoInterval) {
+                    clearInterval(autoInterval);
+                    autoInterval = null;
+                }
+            }
+        });
+
+        // 初始化
         const savedCount = localStorage.getItem('muyu_count');
-        if (savedCount) {
-            count = parseInt(savedCount);
-            dom.counter.innerText = count;
+        if (savedCount) count = parseInt(savedCount);
+        
+        // 加载语言设置
+        const savedLang = localStorage.getItem('muyu_lang');
+        if (savedLang) {
+            currentLang = savedLang;
+        } else {
+            // 简单的浏览器语言检测
+            const browserLang = navigator.language || navigator.userLanguage; 
+            if (browserLang.toLowerCase().includes('zh')) {
+                currentLang = 'zh';
+            }
+        }
+        
+        updateDisplay();
+        updateLanguage();
+
+
+        // --- 背景 Canvas 动画 ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const symbols = "∑∫∂√π∞∆∇∈∉∪∩∀∃%&@#0101";
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.text = symbols[Math.floor(Math.random() * symbols.length)];
+                this.size = Math.random() * 14 + 8;
+                this.speed = Math.random() * 1 + 0.2;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            
+            update() {
+                this.y -= this.speed;
+                if (this.y < -20) {
+                    this.y = height + 20;
+                    this.x = Math.random() * width;
+                    this.text = symbols[Math.floor(Math.random() * symbols.length)];
+                }
+            }
+            
+            draw() {
+                ctx.fillStyle = `rgba(100, 200, 255, ${this.opacity})`;
+                ctx.font = `${this.size}px monospace`;
+                ctx.fillText(this.text, this.x, this.y);
+            }
         }
 
-        // 自动保存
-        setInterval(() => {
-            localStorage.setItem('muyu_count', count);
-        }, 5000);
+        function initParticles() {
+            for(let i=0; i<50; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
 
     </script>
 </body>
