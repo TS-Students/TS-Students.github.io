@@ -2,288 +2,356 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Space | Welcome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>科研电子木鱼 - 积攒学术功德</title>
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --text-color: #ffffff;
-            --accent-color: #00f3ff; /* 赛博朋克蓝 */
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --card-border: rgba(255, 255, 255, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent-color: #4CAF50; /* 学术绿 */
+            --wood-color: #e0e0e0;
         }
 
         body {
+            margin: 0;
+            padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace; /* 极客风格字体 */
-            overflow: hidden; /* 防止滚动条 */
-            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            position: relative;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
-        /* 背景 Canvas */
-        #canvas-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
-
-        /* 中心卡片内容 */
         .container {
-            position: relative;
-            z-index: 1;
             text-align: center;
-            padding: 3rem;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px); /* 毛玻璃模糊 */
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            max-width: 600px;
-            width: 90%;
-            transition: transform 0.3s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
-            border-color: rgba(0, 243, 255, 0.3);
-        }
-
-        /* 头像/Logo区域 (可选) */
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #ff00cc, #333399, #00f3ff);
-            margin: 0 auto 1.5rem;
-            animation: spin 10s linear infinite;
+            position: relative;
+            z-index: 10;
         }
 
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            opacity: 0.8;
+            font-size: 24px;
+        }
+
+        .counter-container {
+            margin-bottom: 40px;
+        }
+
+        .counter-label {
+            font-size: 14px;
+            opacity: 0.6;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
 
-        /* 打字机文字 */
-        .typewriter {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
-            min-height: 1.5em;
-            margin-bottom: 2rem;
-        }
-        
-        .cursor {
-            display: inline-block;
-            width: 8px;
-            background-color: var(--accent-color);
-            animation: blink 1s infinite;
+        #counter {
+            font-size: 48px;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            margin-top: 5px;
         }
 
-        /* 按钮链接组 */
-        .links {
+        .muyu-container {
+            cursor: pointer;
+            transition: transform 0.1s;
+            position: relative;
+            width: 260px;
+            height: 220px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .muyu-container:active, .muyu-container.active {
+            transform: scale(0.95);
+        }
+
+        .muyu-svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--wood-color);
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+        }
+
+        /* 浮动文字动画 */
+        .floating-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-color);
+            font-weight: bold;
+            font-size: 20px;
+            pointer-events: none;
+            white-space: nowrap;
+            animation: floatUp 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% {
+                top: 20%;
+                opacity: 1;
+                transform: translateX(-50%) scale(1);
+            }
+            100% {
+                top: -30%;
+                opacity: 0;
+                transform: translateX(-50%) scale(1.2);
+            }
+        }
+
+        /* 底部控制栏 */
+        .controls {
+            position: fixed;
+            bottom: 30px;
             display: flex;
             gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
+            z-index: 20;
         }
 
-        .btn {
-            text-decoration: none;
+        .mode-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             color: var(--text-color);
-            padding: 10px 24px;
-            border: 1px solid var(--accent-color);
-            border-radius: 4px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            background: rgba(0, 243, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
         }
 
-        .btn:hover {
+        .mode-btn.active {
             background: var(--accent-color);
-            color: #000;
-            box-shadow: 0 0 15px var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
+            font-weight: bold;
         }
 
-        /* 动画定义 */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .mode-btn.active:hover {
+            background: var(--accent-color);
+            opacity: 0.9;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .tips {
+            position: fixed;
+            bottom: 10px;
+            font-size: 12px;
+            opacity: 0.3;
         }
 
         /* 移动端适配 */
-        @media (max-width: 480px) {
-            h1 { font-size: 1.8rem; }
-            .container { padding: 2rem; }
-            .links { flex-direction: column; }
+        @media (max-width: 600px) {
+            .muyu-container {
+                width: 220px;
+                height: 180px;
+            }
+            #counter {
+                font-size: 40px;
+            }
+            .controls {
+                bottom: 40px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
-
     <div class="container">
-        <div class="avatar"></div> <h1>Hello World</h1>
-        <div class="typewriter">
-            <span id="text"></span><span class="cursor">&nbsp;</span>
+        <h1>科研电子木鱼</h1>
+        <div class="counter-container">
+            <div class="counter-label" id="wish-label">当前愿望：学术顺利</div>
+            <div id="counter">0</div>
         </div>
 
-        <div class="links">
-            <a href="#" class="btn">Blog</a>
-            <a href="#" class="btn">GitHub</a>
-            <a href="#" class="btn">About</a>
+        <div class="muyu-container" id="muyu">
+            <!-- 原始 SVG 路径优化版 -->
+            <svg class="muyu-svg" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <path d="M512.6 198.8c-126.8 28.5-257 266-268.4 282-48.4 67.8-87 153.6-107.2 191.4-42.6 79.8-98.4 129-106 162.8-7.6 33.6 26.8 61.2 44.4 69.6 17.6 8.4 47.2 0 58.8 0 87 8.4 273.6 98 506.4 98 0 0 376.6 5.6 405.4-269 6.8-71.4 3.6-207.2-53-213.6-47.8-6.4-76.2 3-136.8 15.4-40.2 8.2-141 22.4-159 33.6-194.8 88.6-301 152.6-330 162-22 0-41-5.4-46.4-52.2 0-19.2 73.2-65 104.6-72.4 179-42.4 263.8-55.4 273.8-55.4 14.4 0 329.6-75.8 339.2-83 9.6-7.2 19.8-14.2 19.8-39.2 0-11.4-25.2-37-54-68.2-34-37-74.6-80-105-90.2-192-127.6-301.6-151.4-397.4-140.4z" />
+                <path d="M512 360c0 0-40 40-40 100s40 100 40 100" style="fill:none;stroke:var(--bg-color);stroke-width:10;opacity:0.3;"/>
+            </svg>
         </div>
     </div>
 
+    <div class="controls">
+        <button class="mode-btn active" onclick="setMode('research')">🎓 科研学术</button>
+        <button class="mode-btn" onclick="setMode('health')">💪 身体健康</button>
+        <button class="mode-btn" onclick="setMode('life')">🍀 诸事顺遂</button>
+    </div>
+
+    <div class="tips">点击屏幕 或 按下空格键 积攒功德</div>
+
     <script>
-        /* --- 1. 打字机效果 --- */
-        const textElement = document.getElementById('text');
-        const texts = [
-            "正在加载个人系统...",
-            "热爱技术，探索未知。",
-            "Welcome to my personal space.",
-            "Stay Hungry, Stay Foolish."
-        ];
-        let textIndex = 0;
-        let charIndex = 0;
-        let isDeleting = false;
-        let delay = 100;
+        // 状态
+        let count = 0;
+        let currentMode = 'research';
+        
+        // 词库配置
+        const texts = {
+            research: [
+                "Paper +1", "SCI +1", "IF +10", "Bug -1", "Error -1", 
+                "Accept", "Offer +1", "灵感 +1", "发量 +1", "Funding +1",
+                "实验成功", "数据完美", "顺利毕业", "一审过", "顶刊 +1"
+            ],
+            health: [
+                "腰椎 +1", "视力 +1", "发量 +1", "睡眠 +1", "颈椎 +1",
+                "体能 +1", "免疫力 +1", "焦虑 -1", "肝功能 +1", "心率正常"
+            ],
+            life: [
+                "功德 +1", "财运 +1", "水逆退散", "好运 +1", "烦恼 -1",
+                "快乐 +1", "桃花 +1", "平安 +1", "万事胜意", "心想事成"
+            ]
+        };
 
-        function type() {
-            const currentText = texts[textIndex];
+        const dom = {
+            counter: document.getElementById('counter'),
+            muyu: document.getElementById('muyu'),
+            wishLabel: document.getElementById('wish-label'),
+            btns: document.querySelectorAll('.mode-btn')
+        };
+
+        // 音频上下文
+        let audioCtx;
+        
+        // 初始化音频上下文（需要用户交互后才能启动）
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 合成木鱼声音
+        function playWoodenFishSound() {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const t = audioCtx.currentTime;
             
-            if (isDeleting) {
-                textElement.textContent = currentText.substring(0, charIndex - 1);
-                charIndex--;
-                delay = 50; // 删除速度快一点
+            // 创建振荡器
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            // 模拟木鱼的短促声音
+            // 频率从高到低快速扫过，模拟敲击
+            osc.frequency.setValueAtTime(800, t);
+            osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+            
+            // 音量包络：快速攻击，中等衰减
+            gainNode.gain.setValueAtTime(0, t);
+            gainNode.gain.linearRampToValueAtTime(1, t + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.type = 'sine';
+            osc.start(t);
+            osc.stop(t + 0.3);
+        }
+
+        // 切换模式
+        window.setMode = function(mode) {
+            currentMode = mode;
+            // 更新按钮状态
+            dom.btns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 更新标签颜色和文字
+            const root = document.documentElement;
+            if (mode === 'research') {
+                root.style.setProperty('--accent-color', '#4CAF50'); // 绿色
+                dom.wishLabel.textContent = "当前愿望：学术顺利";
+            } else if (mode === 'health') {
+                root.style.setProperty('--accent-color', '#2196F3'); // 蓝色
+                dom.wishLabel.textContent = "当前愿望：身体健康";
             } else {
-                textElement.textContent = currentText.substring(0, charIndex + 1);
-                charIndex++;
-                delay = 100; // 打字速度
-            }
-
-            if (!isDeleting && charIndex === currentText.length) {
-                isDeleting = true;
-                delay = 2000; // 打完字后停留2秒
-            } else if (isDeleting && charIndex === 0) {
-                isDeleting = false;
-                textIndex = (textIndex + 1) % texts.length;
-                delay = 500; // 切换下一句前的暂停
-            }
-
-            setTimeout(type, delay);
-        }
-        document.addEventListener('DOMContentLoaded', type);
-
-        /* --- 2. 粒子连线背景动画 --- */
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let particlesArray;
-
-        // 设置Canvas尺寸
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.directionX = (Math.random() * 2) - 1; // 速度 -1 到 1
-                this.directionY = (Math.random() * 2) - 1;
-                this.size = Math.random() * 2; // 粒子大小
-                this.color = '#00f3ff';
-            }
-
-            // 绘制
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-
-            // 更新位置
-            update() {
-                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
-                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
-
-                this.x += this.directionX * 0.5; // 移动速度系数
-                this.y += this.directionY * 0.5;
-                this.draw();
+                root.style.setProperty('--accent-color', '#FF9800'); // 橙色
+                dom.wishLabel.textContent = "当前愿望：诸事顺遂";
             }
         }
 
-        // 初始化粒子
-        function init() {
-            particlesArray = [];
-            let numberOfParticles = (canvas.height * canvas.width) / 9000; // 根据屏幕面积决定粒子数量
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
+        // 敲击逻辑
+        function knock() {
+            // 1. 增加计数
+            count++;
+            dom.counter.innerText = count;
+
+            // 2. 播放声音
+            playWoodenFishSound();
+
+            // 3. 木鱼动画
+            dom.muyu.classList.remove('active');
+            void dom.muyu.offsetWidth; // 触发重绘
+            dom.muyu.classList.add('active');
+            setTimeout(() => dom.muyu.classList.remove('active'), 100);
+
+            // 4. 显示浮动文字
+            showFloatingText();
         }
 
-        // 动画循环
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function showFloatingText() {
+            const textPool = texts[currentMode];
+            const randomText = textPool[Math.floor(Math.random() * textPool.length)];
+            
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.innerText = randomText;
+            
+            // 随机微调位置，显得自然
+            const randomX = (Math.random() - 0.5) * 40;
+            el.style.transform = `translateX(calc(-50% + ${randomX}px))`;
 
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-            connect(); // 连接粒子
+            dom.muyu.appendChild(el);
+
+            // 动画结束后移除元素
+            setTimeout(() => {
+                el.remove();
+            }, 1000);
         }
 
-        // 连线函数
-        function connect() {
-            let opacityValue = 1;
-            for (let a = 0; a < particlesArray.length; a++) {
-                for (let b = a; b < particlesArray.length; b++) {
-                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
-                        + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-                    
-                    if (distance < (canvas.width/7) * (canvas.height/7)) {
-                        opacityValue = 1 - (distance/20000);
-                        ctx.strokeStyle = 'rgba(0, 243, 255,' + opacityValue * 0.2 + ')'; // 线条颜色
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
+        // 绑定事件
+        dom.muyu.addEventListener('mousedown', (e) => {
+            e.preventDefault(); // 防止连续点击选中文本
+            knock();
+        });
+        
+        dom.muyu.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 防止移动端延迟
+            knock();
+        }, { passive: false });
 
-        // 窗口大小改变时重置
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            init();
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                knock();
+            }
         });
 
-        init();
-        animate();
+        // 恢复之前的计数（可选，本地存储）
+        const savedCount = localStorage.getItem('muyu_count');
+        if (savedCount) {
+            count = parseInt(savedCount);
+            dom.counter.innerText = count;
+        }
+
+        // 自动保存
+        setInterval(() => {
+            localStorage.setItem('muyu_count', count);
+        }, 5000);
+
     </script>
 </body>
 </html>
